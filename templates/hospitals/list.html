@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Hospitals and bed availability{% endblock %}
+
+{% block content %}
+<section class="band band--paper band--tight">
+  <div class="wrap">
+    <p class="eyebrow">Feature two</p>
+    <h2>Hospitals and bed capacity<span class="mr">रुग्णालये आणि खाटांची क्षमता</span></h2>
+    <p class="lede">Shows how many beds each hospital has in total. Always phone before travelling to check what is actually free.</p>
+  </div>
+</section>
+
+<div class="simulated">
+  <div class="wrap simulated__inner">
+    <span aria-hidden="true">&#9432;</span>
+    <p style="margin:0"><b>Demonstration data.</b> India has no public real-time feed of hospital bed occupancy, so these counts are entered by an administrator through the control panel. In a real deployment each hospital would update its own row. Treat every number here as an example, not as fact.</p>
+  </div>
+</div>
+
+<section class="band band--paper">
+  <div class="wrap">
+    <form class="filters" method="get">
+      <div class="filters__wide">
+        <label for="q">Search hospital or area</label>
+        <input class="field" type="search" id="q" name="q" value="{{ active.query }}" placeholder="e.g. Civil Hospital, Gangapur Road">
+      </div>
+      <div>
+        <label for="city">City</label>
+        <select class="field" id="city" name="city">
+          <option value="">All cities</option>
+          {% for c in cities %}<option value="{{ c }}" {% if active.city == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="spec">Department</label>
+        <select class="field" id="spec" name="spec">
+          <option value="">Any department</option>
+          {% for s in specialisations %}<option value="{{ s.name }}" {% if active.spec == s.name %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="type">Type</label>
+        <select class="field" id="type" name="type">
+          <option value="">All types</option>
+          {% for v, l in types %}<option value="{{ v }}" {% if active.type == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="filters__wide">
+        <div class="row" style="gap:22px">
+          <label class="checkline"><input type="checkbox" name="pmjay" value="1" {% if active.pmjay %}checked{% endif %}> Only PM-JAY / MJPJAY hospitals</label>
+          <button class="btn" type="submit">Apply filters</button>
+          <a class="btn btn--ghost" href="{% url 'hospitals:list' %}">Reset</a>
+        </div>
+      </div>
+    </form>
+
+    {% if hospitals %}
+    <p class="small muted mono" style="margin-bottom:18px">{{ result_count }} hospital{{ result_count|pluralize }} · {{ total_capacity }} beds in total</p>
+    <div class="hospital-list">
+      {% for h in hospitals %}
+      <article class="hosp">
+        <div class="hosp__main">
+          <h3 class="hosp__name"><a href="{% url 'hospitals:detail' h.pk %}">{{ h.name }}</a></h3>
+          <p class="hosp__addr">{{ h.address }}{% if h.area %}, {{ h.area }}{% endif %} — {{ h.city }}{% if h.pincode %} {{ h.pincode }}{% endif %}</p>
+          <div class="row small">
+            {% if h.contact_number %}<a href="tel:{{ h.contact_number }}">&#9742; {{ h.contact_number }}</a>{% endif %}
+            {% if h.has_emergency %}<span class="muted">24x7 emergency</span>{% endif %}
+            {% if h.has_ambulance %}<span class="muted">Ambulance</span>{% endif %}
+          </div>
+          <div class="hosp__tags">
+            {% if h.hospital_type != 'private' %}<span class="pill pill--govt">{{ h.get_hospital_type_display }}</span>{% endif %}
+            {% if h.accepts_pmjay %}<span class="tag tag--pmjay">PM-JAY / MJPJAY accepted</span>{% endif %}
+            {% for s in h.specialisations.all|slice:":5" %}<span class="pill">{{ s.name }}</span>{% endfor %}
+          </div>
+        </div>
+        {% include "hospitals/_beds.html" with h=h %}
+      </article>
+      {% endfor %}
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pager" aria-label="Hospital list pages">
+      {% if page_obj.has_previous %}
+        <a class="btn btn--ghost btn--sm" href="?page={{ page_obj.previous_page_number }}{% if querystring %}&amp;{{ querystring }}{% endif %}">&larr; Previous</a>
+      {% else %}
+        <span class="btn btn--ghost btn--sm is-disabled" aria-disabled="true">&larr; Previous</span>
+      {% endif %}
+
+      <span class="pager__at">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        <span class="muted">&middot; {{ result_count }} hospital{{ result_count|pluralize }}</span>
+      </span>
+
+      {% if page_obj.has_next %}
+        <a class="btn btn--ghost btn--sm" href="?page={{ page_obj.next_page_number }}{% if querystring %}&amp;{{ querystring }}{% endif %}">Next &rarr;</a>
+      {% else %}
+        <span class="btn btn--ghost btn--sm is-disabled" aria-disabled="true">Next &rarr;</span>
+      {% endif %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="empty">
+      <h3>No hospitals match those filters</h3>
+      <p>Try widening the search — remove the department filter, or choose all cities.</p>
+      <a class="btn btn--ghost" href="{% url 'hospitals:list' %}">Show all hospitals</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

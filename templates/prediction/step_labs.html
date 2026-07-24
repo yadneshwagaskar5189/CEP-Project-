@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Lab report{% endblock %}
+{% block content %}
+<section class="band band--tight"><div class="wrap wrap--narrow">
+  {% include "prediction/_stepper.html" %}
+  <p class="eyebrow">Step 2 of 4 · Lab report</p>
+  <h1 style="margin-bottom:6px">Add your report<span class="mr">तुमचा रिपोर्ट जोडा</span></h1>
+  <p class="lede">Photograph the report and we will find the numbers. You only need to check that what we read matches what is printed.</p>
+</div></section>
+
+<section class="band" style="padding-top:0"><div class="wrap wrap--narrow">
+
+  {% if ocr_available %}
+  <form method="post" enctype="multipart/form-data" class="card">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="extract">
+    <h3>1 · Photograph the report</h3>
+    <p class="small muted">Lay the page flat in good light and fill the frame. Nothing is stored — the image is read and discarded in the same moment.</p>
+    <div style="margin:14px 0">
+      <input class="field" type="file" name="report" accept="image/*" capture="environment" required>
+    </div>
+    <button class="btn" type="submit">Read the report</button>
+  </form>
+  {% else %}
+  <div class="callout callout--warn">
+    <h4>Photo reading is not installed on this server</h4>
+    <p style="margin:0">Ask your administrator to install Tesseract (<code class="mono">sudo apt install tesseract-ocr</code>). You can still type the values in below — it works exactly the same way.</p>
+  </div>
+  {% endif %}
+
+  <form method="post">
+  {% csrf_token %}
+
+  {% if extracted %}
+    {% if extracted.found %}
+    <div class="card">
+      <h3>2 · Check what we read<span class="mr">आम्ही वाचलेले तपासा</span></h3>
+      <p class="small muted">Compare each number below against your report. <b>Anything outside the normal range is always shown for checking</b>, because those are the values that decide how urgent your result is.</p>
+
+      <div style="margin-top:16px">
+      {% for f in extracted.found %}
+        <div class="labconf {% if f.confidence == 'medium' %}labconf--medium{% elif f.confidence == 'low' %}labconf--low{% endif %}">
+          <div class="labconf__top">
+            <div>
+              <div class="labrow__name">{{ f.label }}</div>
+              <div class="labrow__ref">usual range: {{ f.normal_text }}</div>
+            </div>
+            <span class="badge {% if f.confidence == 'high' %}badge--ok{% elif f.confidence == 'medium' %}badge--med{% else %}badge--low{% endif %}">
+              {% if f.confidence == 'high' %}clear read{% elif f.confidence == 'medium' %}please check{% else %}check carefully{% endif %}
+            </span>
+          </div>
+
+          <p class="labconf__src">read from: “{{ f.raw_line }}”</p>
+
+          <div class="row" style="margin-top:12px;align-items:flex-end">
+            <div style="flex:1 1 160px">
+              <label class="lbl" for="v_{{ f.test }}">Value ({{ f.unit }})</label>
+              <input class="field field--mono" type="text" id="v_{{ f.test }}"
+                     name="value_{{ f.test }}" value="{{ f.value|floatformat:'-3' }}">
+            </div>
+            <label class="checkline" style="flex:0 0 auto;padding-bottom:10px">
+              <input type="checkbox" name="confirm_{{ f.test }}"
+                     {% if f.confidence == 'high' %}checked{% endif %}>
+              <span>This matches my report</span>
+            </label>
+          </div>
+
+          {% if f.message %}<p class="labconf__note">⚠ {{ f.message }}</p>{% endif %}
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if extracted.rejected %}
+    <div class="callout callout--warn">
+      <h4>Some readings were discarded</h4>
+      <ul style="margin:6px 0 0;padding-left:18px">
+        {% for r in extracted.rejected %}<li class="small">{{ r.label }} — {{ r.message }}</li>{% endfor %}
+      </ul>
+      <p class="small" style="margin:8px 0 0">These were impossible values, so they were thrown away rather than shown to you. Type them in below if you need them.</p>
+    </div>
+    {% endif %}
+  {% endif %}
+
+  {% if manual_rows %}
+  <div class="card">
+    <h3>{% if extracted %}3 · Or type values in{% else %}Type the values in{% endif %}</h3>
+    <p class="small muted">Only fill what you have. Every field is optional and a blank one simply means we work without it.{% if extracted %} Anything read from the photo is listed above instead.{% endif %}</p>
+
+    <div style="margin-top:14px">
+    {% for r in manual_rows %}
+      <div class="labrow">
+        <div>
+          <div class="labrow__name">{{ r.label }}</div>
+          <div class="labrow__ref">{{ r.normal_text }}</div>
+        </div>
+        <div class="row" style="flex-wrap:nowrap;align-items:center;gap:8px">
+          <input class="field field--mono" style="width:130px;text-align:right"
+                 type="text" name="value_{{ r.key }}" inputmode="decimal"
+                 aria-label="{{ r.label }} in {{ r.unit }}"
+                 value="{{ r.value|floatformat:'-3' }}"
+                 placeholder="—">
+          <label class="checkline">
+            <input type="checkbox" name="confirm_{{ r.key }}" {% if r.value %}checked{% endif %}>
+            <span class="small">use</span>
+          </label>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+    <p class="hint">Platelets can be entered either way — <span class="mono">1.5</span> for 1.5 lakh, or <span class="mono">150000</span>.</p>
+  </div>
+  {% endif %}
+
+  <div class="callout callout--info">
+    <h4>Why we ask you to confirm</h4>
+    <p style="margin:0">Reading a photograph is never perfect, and a wrong number here would change the advice you get. So a lab value can only ever make our result <b>more</b> urgent, never less. If we are unsure, we work from your symptoms alone and tell you so.</p>
+  </div>
+
+  <div class="row" style="justify-content:space-between;margin-top:18px">
+    <a class="btn btn--ghost" href="{% url 'prediction:context' %}">← Back</a>
+    <button class="btn" type="submit">Use these values →</button>
+  </div>
+  </form>
+</div></section>
+{% endblock %}

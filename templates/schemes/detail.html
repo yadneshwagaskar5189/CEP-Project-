@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ scheme.name }}{% endblock %}
+{% block description %}{{ scheme.headline_benefit }}{% endblock %}
+
+{% block content %}
+<section class="detail-head">
+  <div class="wrap">
+    <p class="eyebrow eyebrow--light">
+      <a href="{% url 'schemes:list' %}" style="color:rgba(255,255,255,0.75)">Schemes</a> /
+      {% if scheme.level == 'central' %}Central Government{% else %}Government of Maharashtra{% endif %}
+    </p>
+    <h1>{{ scheme.name }}</h1>
+    {% if scheme.short_name %}<p class="mono" style="color:var(--yellow);letter-spacing:0.1em;margin:0">{{ scheme.short_name }}</p>{% endif %}
+    <div class="benefit-slab">{{ scheme.headline_benefit }}</div>
+  </div>
+</section>
+
+<section class="band band--paper">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <div class="panel">
+          <h3>What this scheme is</h3>
+          <p style="margin-bottom:0">{{ scheme.description|linebreaksbr }}</p>
+        </div>
+
+        <div class="panel">
+          <h3>Who qualifies<span class="mr">पात्रता</span></h3>
+          <ul class="ticks">
+            {% for item in scheme.eligibility_list %}<li>{{ item }}</li>{% endfor %}
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h3>How to apply, step by step<span class="mr">अर्ज कसा करावा</span></h3>
+          <ol class="steps">
+            {% for step in scheme.step_list %}<li>{{ step }}</li>{% endfor %}
+          </ol>
+        </div>
+      </div>
+
+      <aside>
+        <div class="panel panel--side">
+          <h3>Papers to carry<span class="mr">आवश्यक कागदपत्रे</span></h3>
+          <ul class="ticks ticks--doc">
+            {% for doc in scheme.document_list %}<li>{{ doc }}</li>{% endfor %}
+          </ul>
+        </div>
+
+        <div class="panel panel--side">
+          <h3>At a glance</h3>
+          <dl style="margin:0">
+            <div class="meta-row"><dt>Run by</dt><dd>{% if scheme.level == 'central' %}Central Govt{% else %}Maharashtra Govt{% endif %}</dd></div>
+            <div class="meta-row"><dt>Category</dt><dd>{{ scheme.get_category_display }}</dd></div>
+            <div class="meta-row"><dt>Card</dt><dd>{{ scheme.get_eligible_cards_display }}</dd></div>
+            {% if scheme.where_to_apply %}<div class="meta-row"><dt>Apply at</dt><dd>{{ scheme.where_to_apply }}</dd></div>{% endif %}
+            {% if scheme.helpline %}<div class="meta-row"><dt>Helpline</dt><dd><a href="tel:{{ scheme.helpline }}">{{ scheme.helpline }}</a></dd></div>{% endif %}
+            <div class="meta-row"><dt>Checked on</dt><dd>{{ scheme.last_verified|date:"j M Y" }}</dd></div>
+          </dl>
+          {% if scheme.official_link %}
+          <a class="btn btn--wide" style="margin-top:18px" href="{{ scheme.official_link }}" rel="noopener">Open official portal</a>
+          {% endif %}
+        </div>
+
+        <div class="notice">
+          Scheme amounts and rules change. Always confirm on the official portal or at a government hospital before you rely on this page.
+        </div>
+      </aside>
+    </div>
+
+    {% if related %}
+    <div style="margin-top:40px">
+      <h3>Also worth checking</h3>
+      <div class="scheme-grid">
+        {% for item in related %}
+        <a class="scheme" href="{{ item.get_absolute_url }}">
+          <div class="scheme__top"><div><h3>{{ item.name }}</h3></div></div>
+          <p class="scheme__benefit">{{ item.headline_benefit }}</p>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

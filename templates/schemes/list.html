@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Government health schemes{% endblock %}
+
+{% block content %}
+<section class="band band--paper band--tight">
+  <div class="wrap">
+    <p class="eyebrow">Feature one</p>
+    <h2>Government health schemes<span class="mr">शासकीय आरोग्य योजना</span></h2>
+    <p class="lede">All {{ total }} active schemes, with the real eligibility rules and the steps to apply. Filter by the ration card your family holds.</p>
+  </div>
+</section>
+
+<section class="rcards">
+  <div class="wrap">
+    <p class="rcards__head">Which card does your family hold?</p>
+    <div class="rcards__row">
+      <a class="rcard rcard--yellow {% if active_card == 'yellow' %}is-on{% endif %}" href="?card=yellow"><span class="rcard__t">Yellow</span><span class="rcard__d">Antyodaya / BPL</span></a>
+      <a class="rcard rcard--orange {% if active_card == 'orange' %}is-on{% endif %}" href="?card=orange"><span class="rcard__t">Orange</span><span class="rcard__d">Under &#8377;1 lakh a year</span></a>
+      <a class="rcard rcard--white {% if active_card == 'white' %}is-on{% endif %}" href="?card=white"><span class="rcard__t">White</span><span class="rcard__d">Above income limit</span></a>
+      <a class="rcard rcard--senior {% if active_card == 'senior70' %}is-on{% endif %}" href="?card=senior70"><span class="rcard__t">Age 70+</span><span class="rcard__d">Any income</span></a>
+      <a class="rcard rcard--any {% if not active_card %}is-on{% endif %}" href="{% url 'schemes:list' %}"><span class="rcard__t">Show all</span><span class="rcard__d">Clear filters</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="band band--paper">
+  <div class="wrap">
+    <form class="filters" method="get">
+      {% if active_card %}<input type="hidden" name="card" value="{{ active_card }}">{% endif %}
+      <div class="filters__wide">
+        <label for="q">Search by name, benefit or condition</label>
+        <input class="field" type="search" id="q" name="q" value="{{ query }}" placeholder="e.g. maternity, TB, dialysis, cancer">
+      </div>
+      <div>
+        <label for="category">Category</label>
+        <select class="field" id="category" name="category">
+          <option value="">All categories</option>
+          {% for value, label in categories %}
+          <option value="{{ value }}" {% if active_category == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="level">Run by</label>
+        <select class="field" id="level" name="level">
+          <option value="">Central and state</option>
+          <option value="central" {% if active_level == 'central' %}selected{% endif %}>Central Government</option>
+          <option value="state" {% if active_level == 'state' %}selected{% endif %}>Maharashtra Government</option>
+        </select>
+      </div>
+      <div><button class="btn btn--wide" type="submit">Apply filters</button></div>
+    </form>
+
+    {% if schemes %}
+    <p class="small muted mono" style="margin-bottom:18px">{{ schemes|length }} scheme{{ schemes|length|pluralize }} shown{% if active_card %} &middot; includes schemes open to everyone{% endif %}</p>
+    <div class="scheme-grid">
+      {% for scheme in schemes %}
+      <a class="scheme" href="{{ scheme.get_absolute_url }}">
+        <div class="scheme__top">
+          <div>
+            <h3>{{ scheme.name }}</h3>
+            {% if scheme.short_name %}<span class="scheme__abbr">{{ scheme.short_name }}</span>{% endif %}
+          </div>
+          <span class="pill pill--{{ scheme.level }}">{% if scheme.level == 'central' %}Central{% else %}Maharashtra{% endif %}</span>
+        </div>
+        <p class="scheme__benefit">{{ scheme.headline_benefit }}</p>
+        <p class="scheme__desc">{{ scheme.description|truncatewords:26 }}</p>
+        <div class="scheme__foot">
+          <span class="muted">{{ scheme.get_category_display }}</span>
+          <span style="color:var(--green);font-weight:600">How to apply &rarr;</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+      <h3>No schemes match that</h3>
+      <p>Try a shorter search word, or clear the filters to see all {{ total }} schemes.</p>
+      <a class="btn btn--ghost" href="{% url 'schemes:list' %}">Show all schemes</a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

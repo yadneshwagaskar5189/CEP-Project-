@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ hospital.name }}{% endblock %}
+
+{% block content %}
+<section class="detail-head">
+  <div class="wrap">
+    <p class="eyebrow eyebrow--light"><a href="{% url 'hospitals:list' %}" style="color:rgba(255,255,255,0.75)">Hospitals</a> / {{ hospital.city }}</p>
+    <h1>{{ hospital.name }}</h1>
+    <p class="lede">{{ hospital.address }}{% if hospital.area %}, {{ hospital.area }}{% endif %} — {{ hospital.city }}{% if hospital.pincode %} {{ hospital.pincode }}{% endif %}</p>
+  </div>
+</section>
+
+<section class="band band--paper">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <article class="hosp" style="margin-bottom:20px">
+          <div class="hosp__main">
+            <h3 style="margin-top:0">Bed availability right now</h3>
+            <p class="hosp__addr">Entered by an administrator. Phone the hospital to confirm before you travel.</p>
+          </div>
+          {% include "hospitals/_beds.html" with h=hospital %}
+        </article>
+
+        <div class="panel">
+          <h3>Departments<span class="mr">विभाग</span></h3>
+          {% if hospital.specialisations.all %}
+          <div class="hosp__tags">
+            {% for s in hospital.specialisations.all %}<span class="pill">{{ s.name }}</span>{% endfor %}
+          </div>
+          {% else %}<p class="muted mb0">Not listed.</p>{% endif %}
+        </div>
+
+        {% if hospital.latitude and hospital.longitude %}
+        <div class="panel">
+          <h3>Getting there</h3>
+          <p>Open directions in your maps app:</p>
+          <a class="btn" href="https://www.google.com/maps/dir/?api=1&destination={{ hospital.latitude }},{{ hospital.longitude }}" rel="noopener">Get directions</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <aside>
+        <div class="panel panel--side">
+          <h3>Contact</h3>
+          <dl style="margin:0">
+            <div class="meta-row"><dt>Type</dt><dd>{{ hospital.get_hospital_type_display }}</dd></div>
+            {% if hospital.contact_number %}<div class="meta-row"><dt>Reception</dt><dd><a href="tel:{{ hospital.contact_number }}">{{ hospital.contact_number }}</a></dd></div>{% endif %}
+            {% if hospital.emergency_number %}<div class="meta-row"><dt>Emergency</dt><dd><a href="tel:{{ hospital.emergency_number }}">{{ hospital.emergency_number }}</a></dd></div>{% endif %}
+            <div class="meta-row"><dt>24x7 casualty</dt><dd>{{ hospital.has_emergency|yesno:"Yes,No" }}</dd></div>
+            <div class="meta-row"><dt>Ambulance</dt><dd>{{ hospital.has_ambulance|yesno:"Yes,No" }}</dd></div>
+            <div class="meta-row"><dt>PM-JAY / MJPJAY</dt><dd>{{ hospital.accepts_pmjay|yesno:"Accepted,Not listed" }}</dd></div>
+          </dl>
+          <a class="btn btn--red btn--wide" style="margin-top:18px" href="tel:{{ EMERGENCY_NUMBER }}">&#9742; Ambulance {{ EMERGENCY_NUMBER }}</a>
+        </div>
+
+        {% if hospital.accepts_pmjay %}
+        <div class="notice" style="border-left-color:var(--yellow)">
+          This hospital is listed as empanelled for PM-JAY and MJPJAY. Ask for the <b>Arogya Mitra</b> desk at the entrance — that is the person who checks your card and starts the cashless paperwork.
+        </div>
+        {% endif %}
+      </aside>
+    </div>
+
+    {% if nearby %}
+    <div style="margin-top:40px">
+      <h3>Other hospitals in {{ hospital.city }}</h3>
+      <div class="hospital-list">
+        {% for h in nearby %}
+        <article class="hosp">
+          <div class="hosp__main">
+            <h3 class="hosp__name"><a href="{% url 'hospitals:detail' h.pk %}">{{ h.name }}</a></h3>
+            <p class="hosp__addr">{{ h.area|default:h.address }}</p>
+          </div>
+          {% include "hospitals/_beds.html" with h=h %}
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Symptom checker{% endblock %}
+{% block content %}
+<section class="band band--tight"><div class="wrap">
+  {% include "prediction/_stepper.html" %}
+  <p class="eyebrow">Step 1 of 4</p>
+  <h1 style="margin-bottom:6px">What are you feeling?<span class="mr">तुम्हाला काय होत आहे?</span></h1>
+  <p class="lede">Tick everything, even things that seem unrelated. Most people tick too few, and that is the main reason a result comes out vague.</p>
+</div></section>
+
+<section class="band" style="padding-top:0"><div class="wrap">
+  {% include "prediction/_disclaimer.html" %}
+
+  {% if not model_ready %}
+  <div class="callout callout--warn">The model has not been trained yet. Run <code class="mono">python ml_model/train_model.py</code>, then reload.</div>
+  {% endif %}
+
+  <form method="post" id="symform">
+    {% csrf_token %}
+    <div class="filters">
+      <div>
+        <label class="lbl" for="city">Your city</label>
+        <select class="field" id="city" name="city">
+          <option value="">Not now</option>
+          {% for c in cities %}<option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+        </select>
+        <p class="hint">Used to suggest a hospital at the end.</p>
+      </div>
+      <div class="filters__wide">
+        <label class="lbl" for="symsearch">Find a symptom quickly</label>
+        <input class="field" type="search" id="symsearch" placeholder="Type to filter — fever, cough, pain…" autocomplete="off">
+      </div>
+    </div>
+
+    {% for group, items in groups.items %}
+    <div class="symgroup" data-group role="group" aria-labelledby="g{{ forloop.counter }}">
+      <p class="symgroup__h" id="g{{ forloop.counter }}">
+        <span>{{ group }}</span><span class="symgroup__n">{{ items|length }}</span>
+      </p>
+      <div class="chips">
+        {% for key, label in items %}
+        <label class="chip" data-label="{{ label|lower }} {{ key }}">
+          <input type="checkbox" name="symptoms" value="{{ key }}" {% if key in selected %}checked{% endif %}>
+          <span>{{ label }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="tray">
+      <span class="tray__count"><b id="cnt">0</b> selected — three or more gives a useful answer</span>
+      <span class="row">
+        <button type="button" class="btn btn--ghost btn--sm" id="clearall">Clear all</button>
+        <button class="btn" type="submit" {% if not model_ready %}disabled{% endif %}>Continue →</button>
+      </span>
+    </div>
+  </form>
+</div></section>
+
+<script>
+(function(){
+  var f=document.getElementById('symform'), c=document.getElementById('cnt'), s=document.getElementById('symsearch');
+  function n(){ c.textContent=f.querySelectorAll('input[name="symptoms"]:checked').length; }
+  f.addEventListener('change',n); n();
+  document.getElementById('clearall').addEventListener('click',function(){
+    f.querySelectorAll('input[name="symptoms"]:checked').forEach(function(b){b.checked=false;}); n();
+  });
+  s.addEventListener('input',function(){
+    var q=this.value.trim().toLowerCase();
+    document.querySelectorAll('[data-group]').forEach(function(g){
+      var shown=0;
+      g.querySelectorAll('.chip').forEach(function(ch){
+        var hit=!q||ch.dataset.label.indexOf(q)!==-1;
+        ch.style.display=hit?'':'none'; if(hit)shown++;
+      });
+      g.style.display=shown?'':'none';
+    });
+  });
+  s.addEventListener('keydown',function(e){ if(e.key==='Enter') e.preventDefault(); });
+})();
+</script>
+{% endblock %}

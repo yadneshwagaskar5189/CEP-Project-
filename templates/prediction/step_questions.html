@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Follow-up questions{% endblock %}
+{% block content %}
+<section class="band band--tight"><div class="wrap wrap--narrow">
+  {% include "prediction/_stepper.html" %}
+  <p class="eyebrow">Step 3 of 4 · {{ answered }} of {{ max_questions }} asked</p>
+  <h1 style="margin-bottom:6px">A few targeted questions<span class="mr">काही नेमके प्रश्न</span></h1>
+  <p class="lede">These are not a fixed list. They were chosen because your answers would narrow things down the most from here.</p>
+</div></section>
+
+<section class="band" style="padding-top:0"><div class="wrap wrap--narrow">
+
+  <div class="why">
+    Right now the leading possibility is <b>{{ outcome.top.disease }}</b> at {{ outcome.top.confidence }}%.
+    {% if outcome.alternatives %}The next closest is <b>{{ outcome.alternatives.0.disease }}</b> at {{ outcome.alternatives.0.confidence }}%.{% endif %}
+    Answering below will separate them.
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    {% for q in questions %}
+    <div class="qcard">
+      <input type="hidden" name="shown" value="{{ q.key }}">
+      <p class="qcard__q">{{ q.label }}?</p>
+      <p class="qcard__why">Asked because {{ q.why }}.</p>
+      <div class="tri">
+        <label><input type="radio" name="a_{{ q.key }}" value="yes"><span>Yes</span></label>
+        <label><input type="radio" name="a_{{ q.key }}" value="no" checked><span>No</span></label>
+        <label><input type="radio" name="a_{{ q.key }}" value="unsure"><span>Not sure</span></label>
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="row" style="justify-content:space-between;margin-top:20px">
+      <button class="btn btn--ghost" type="submit" name="more" value="0">Skip to result</button>
+      <span class="row">
+        <button class="btn btn--ghost" type="submit" name="more" value="1">Answer &amp; ask more</button>
+        <button class="btn" type="submit" name="more" value="0">Answer &amp; see result →</button>
+      </span>
+    </div>
+  </form>
+
+  <p class="hint" style="margin-top:16px">“Not sure” is treated the same as “no”, so it is always safe to pick.</p>
+</div></section>
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}Your result{% endblock %}
+{% block content %}
+
+<section class="band band--tight"><div class="wrap">
+  {% include "prediction/_stepper.html" %}
+</div></section>
+
+<!-- ===== PRIMARY OUTPUT: URGENCY ===== -->
+<section style="padding-bottom:4px"><div class="wrap">
+  <div class="urgency urgency--{{ outcome.urgency }}">
+    <p class="urgency__label">What to do</p>
+    <h1 class="urgency__head">{{ outcome.urgency_info.headline }}<span class="mr">{{ outcome.urgency_info.mr }}</span></h1>
+    <p class="urgency__detail">{{ outcome.urgency_info.detail }}</p>
+
+    <div class="uscale" role="img" aria-label="Urgency level: {{ outcome.urgency }}">
+      <span class="uscale__step {% if outcome.urgency == 'routine' %}is-on{% endif %}">No rush</span>
+      <span class="uscale__step {% if outcome.urgency == 'prompt' %}is-on{% elif outcome.urgency == 'urgent' or outcome.urgency == 'emergency' %}is-past{% endif %}">A day or two</span>
+      <span class="uscale__step {% if outcome.urgency == 'urgent' %}is-on{% elif outcome.urgency == 'emergency' %}is-past{% endif %}">Today</span>
+      <span class="uscale__step {% if outcome.urgency == 'emergency' %}is-on{% endif %}">Right now</span>
+    </div>
+
+    {% if outcome.urgency_reasons %}
+    <div class="why" style="margin-bottom:0">
+      <b>Why this level:</b>
+      {% for r in outcome.urgency_reasons %}{{ r }}{% if not forloop.last %}; {% endif %}{% endfor %}.
+      We take the most cautious of the plausible answers, not the most likely one.
+    </div>
+    {% endif %}
+  </div>
+</div></section>
+
+<section class="band"><div class="wrap">
+  <div class="split">
+    <div>
+
+      {% if outcome.sensitive %}
+      <div class="callout callout--info">
+        <h4>Before anything else</h4>
+        <p>What you have described is something a great many people go through, and it is treatable. Talking to someone helps more than anything a website can offer.</p>
+        <p style="margin-bottom:0"><b>Tele-MANAS — <a href="tel:{{ outcome.mental_health_helpline }}">{{ outcome.mental_health_helpline }}</a></b> is free, confidential, available 24 hours, and available in Marathi.</p>
+      </div>
+      {% endif %}
+
+      <!-- ===== SECONDARY: what it could be ===== -->
+      <div class="card">
+        <p class="eyebrow">What this could be — not a diagnosis</p>
+        <h2 style="margin-bottom:10px">{{ outcome.top.disease }}</h2>
+
+        <div class="meter__bar"><div class="meter__fill" style="width:{{ outcome.top.confidence }}%"></div></div>
+        <p class="meter__txt">{{ outcome.top.confidence }}% match against the pattern you described</p>
+
+        {% if info %}<p style="margin-top:14px">{{ info.about }}</p>{% endif %}
+
+        {% if outcome.low_information %}
+        <div class="callout callout--warn" style="margin-bottom:0">
+          <h4>Treat this loosely</h4>
+          <p style="margin:0">{% if outcome.symptom_count < 3 %}Only {{ outcome.symptom_count }} symptom{{ outcome.symptom_count|pluralize }} were given, which is not much to work from.{% else %}The top possibilities scored very close together.{% endif %} The urgency above is the reliable part of this page.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if outcome.alternatives %}
+      <div class="card">
+        <h3>Also possible</h3>
+        <p class="small muted">Several conditions genuinely overlap. A doctor separates them with an examination and a test.</p>
+        {% for alt in alternatives %}
+        <div class="alt">
+          <div style="flex:1">
+            <b>{{ alt.disease }}</b>
+            {% if alt.specialisation %}<div class="small muted">{{ alt.specialisation }}</div>{% endif %}
+          </div>
+          <span class="alt__n">{{ alt.confidence }}%</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if outcome.explanations %}
+      <div class="card">
+        <h3>What changed the answer</h3>
+        <p class="small muted">Your answers did not just get counted — they moved specific possibilities up or down. Here is exactly what moved.</p>
+        <div style="margin-top:12px">
+        {% for e in outcome.explanations %}
+          <div class="alt">
+            <div style="flex:1">
+              <b>{{ e.disease }}</b>
+              <div class="small muted">{{ e.reason }}</div>
+            </div>
+            <span class="alt__n">
+              {{ e.before }}% <span style="color:{% if e.direction == 'up' %}var(--u-urgent){% else %}var(--ink-3){% endif %}">{% if e.direction == 'up' %}↑{% else %}↓{% endif %}</span> {{ e.after }}%
+            </span>
+          </div>
+        {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- ===== LAB VALUES ===== -->
+      {% if outcome.labs.notes %}
+      <div class="card">
+        <h3>Your report, in plain words<span class="mr">तुमचा रिपोर्ट, सोप्या शब्दांत</span></h3>
+        {% for n in outcome.labs.notes %}
+        <div style="padding:13px 0;border-bottom:1px solid var(--line)">
+          <div class="labrow" style="border:0;padding:0">
+            <div>
+              <div class="labrow__name">{{ n.label }}</div>
+              <div class="labrow__ref">usual: {{ n.normal_text }}</div>
+            </div>
+            <div class="labrow__val is-{{ n.direction }}">{{ n.value|floatformat:"-2" }} <span class="small muted">{{ n.unit }}</span></div>
+          </div>
+          <p class="small" style="margin:8px 0 0">
+            <b>{{ n.verdict|capfirst }}.</b> {{ n.plain }}
+          </p>
+        </div>
+        {% endfor %}
+        <p class="hint">Reference ranges vary between labs, and by age and sex. Always read your own report's printed range alongside these.</p>
+      </div>
+      {% endif %}
+
+      <!-- ===== WHAT TO DO ===== -->
+      {% if info %}
+      <div class="card">
+        <h3>What to do now<span class="mr">आता काय करावे</span></h3>
+        <ul class="ticks">
+          {% for p in info.precaution_list %}<li>{{ p }}</li>{% endfor %}
+        </ul>
+      </div>
+
+      {% if info.avoid_list %}
+      <div class="card" style="border-color:var(--u-emerg)">
+        <h3 style="color:var(--u-emerg)">Do not take these<span class="mr">हे घेऊ नका</span></h3>
+        <p class="small muted">This app never tells you which medicine to take — dengue and flu look alike, and a painkiller that is ordinary for one is dangerous in the other. Telling you what to <em>avoid</em> stays safe even if the guess above is wrong.</p>
+        <ul class="ticks ticks--avoid" style="margin-top:12px">
+          {% for a in info.avoid_list %}<li>{{ a }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if info.test_list %}
+      <div class="card">
+        <h3>Tests worth asking for</h3>
+        <p class="small muted">Knowing the name of a test makes a short consultation far more useful. You can ask for these by name.</p>
+        <ul class="ticks ticks--test" style="margin-top:10px">
+          {% for t in info.test_list %}<li>{{ t }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% endif %}
+    </div>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="stack">
+      <div class="card">
+        <h4>What you told us</h4>
+        <div class="chips" style="margin-top:8px">
+          {% for s in outcome.selected_labels %}<span class="pill">{{ s }}</span>{% endfor %}
+        </div>
+        {% if context_display %}
+        <dl style="margin:14px 0 0">
+          {% for row in context_display %}
+          <div class="meta-row"><dt>{{ row.question }}</dt><dd>{{ row.answer }}</dd></div>
+          {% endfor %}
+        </dl>
+        {% endif %}
+      </div>
+
+      {% if info %}
+      <div class="card">
+        <h4>Who to see</h4>
+        <p style="font-size:1.05rem;font-weight:600;margin:6px 0 0">{{ info.specialisation }}</p>
+        <p class="small muted">A government health centre can refer you at no cost.</p>
+      </div>
+      {% endif %}
+
+      {% if hospitals %}
+      <div class="card">
+        <h4>Hospitals with this department</h4>
+        {% for h in hospitals %}
+        <div class="alt">
+          <div style="flex:1">
+            <a href="{% url 'hospitals:detail' h.pk %}" style="font-weight:600;text-decoration:none">{{ h.name }}</a>
+            <div class="small muted">{{ h.city }}{% if h.is_government %} · <span class="pill pill--govt">Government</span>{% endif %}</div>
+          </div>
+          {% if h.beds %}<span class="alt__n">{{ h.beds.total_beds }} beds</span>{% endif %}
+        </div>
+        {% endfor %}
+        <a class="btn btn--ghost btn--sm btn--wide" style="margin-top:12px" href="{% url 'hospitals:list' %}">See all hospitals</a>
+      </div>
+      {% endif %}
+
+      <div class="card">
+        <h4>Can you get treated free?</h4>
+        <p class="small">Most people qualify for a scheme and never find out. It takes a minute to check.</p>
+        <a class="btn btn--wide" href="{% url 'schemes:list' %}">Check schemes</a>
+      </div>
+
+      <div class="card">
+        <h4>Start again</h4>
+        <a class="btn btn--ghost btn--wide" href="{% url 'prediction:reset' %}">New assessment</a>
+      </div>
+    </aside>
+  </div>
+
+  <div style="margin-top:26px">{% include "prediction/_disclaimer.html" %}</div>
+</div></section>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}About this project{% endblock %}
+
+{% block content %}
+<section class="detail-head">
+  <div class="wrap">
+    <p class="eyebrow eyebrow--light">Community Engagement Project</p>
+    <h1>How this was built<span class="mr">हा प्रकल्प कसा तयार झाला</span></h1>
+    <p class="lede">A Django application with three features, one trained model, and one rule that overrides the model.</p>
+  </div>
+</section>
+
+<section class="band band--paper">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <div class="panel">
+          <h3>The problem we picked</h3>
+          <p>India spends heavily on public health, and most of that help goes unclaimed. People do not know the schemes exist, do not know their ration card already qualifies them, or arrive at a hospital that has no bed free. The gap is not funding. It is information.</p>
+          <p class="mb0">This site attacks the information gap in three places: what you are entitled to, where you can actually be treated, and how urgently you need to go.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Feature 1 — Scheme directory</h3>
+          <p>A <code class="mono">Scheme</code> model holds eligibility, documents and application steps as separate fields, so the site can render them as tickss instead of a wall of text. Every record carries a <b>last verified</b> date, because scheme amounts change and a stale figure sent someone to the wrong counter is worse than no figure at all.</p>
+          <p class="mb0">The filter runs on ration card colour, because that is how eligibility actually works in Maharashtra. Schemes open to everyone are always included in a filtered list rather than hidden.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Feature 2 — Hospital beds</h3>
+          <p>There is no public real-time API for hospital bed occupancy in India. We did not pretend otherwise. Bed counts live in a <code class="mono">BedAvailability</code> table that an administrator edits directly in the Django admin, which is exactly the interface a hospital data-entry operator would use in a real deployment.</p>
+          <p>Every page showing a bed count also shows how long ago it was updated, and flags records older than 24 hours as possibly stale. The list page carries a permanent banner saying the data is a demonstration.</p>
+          <p class="mb0">This was a deliberate choice: a simulation that admits it is a simulation is honest engineering. A fake live feed would not be.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Feature 3 — Symptom checker</h3>
+          <p>A <b>Random Forest classifier</b> trained on symptom, context and lab features. Training data is generated from clinically-informed condition profiles, and the generator deliberately simulates <b>under-reporting</b> — a real person ticks three or four boxes, not the eight a textbook lists.</p>
+          <p>An earlier version scored 98% over 30 conditions. This one scores lower, and that is the point: it covers 70 conditions that genuinely overlap, so it is sitting a harder exam. An accuracy near 98% here would mean the data was too tidy to be worth anything. The confusions it does make are the clinically honest ones — gastroenteritis with food poisoning, influenza with viral fever.</p>
+          <p class="mb0"><b>Urgency is the headline answer, not the condition name.</b> "See a doctor today" is defensible on this evidence; "you have typhoid" is not, and invites self-medication.</p>
+
+          {% if meta %}
+          <dl style="margin:20px 0 0">
+            <div class="meta-row"><dt>Algorithm</dt><dd>{{ meta.algorithm }}</dd></div>
+            <div class="meta-row"><dt>Trees</dt><dd>{{ meta.n_estimators }}</dd></div>
+            <div class="meta-row"><dt>Training samples</dt><dd>{{ meta.samples_used }}</dd></div>
+            <div class="meta-row"><dt>Features total</dt><dd>{{ meta.features_total }}</dd></div>
+            <div class="meta-row"><dt>— symptoms</dt><dd>{{ meta.features_symptoms }}</dd></div>
+            <div class="meta-row"><dt>— context</dt><dd>{{ meta.features_context }}</dd></div>
+            <div class="meta-row"><dt>— lab values</dt><dd>{{ meta.features_lab }}</dd></div>
+            <div class="meta-row"><dt>Classes (conditions)</dt><dd>{{ meta.classes }}</dd></div>
+            <div class="meta-row"><dt>Top-1 accuracy</dt><dd>{{ meta.top1_accuracy }}</dd></div>
+            <div class="meta-row"><dt>Top-3 accuracy</dt><dd>{{ meta.top3_accuracy }}</dd></div>
+            <div class="meta-row"><dt>Top-5 accuracy</dt><dd>{{ meta.top5_accuracy }}</dd></div>
+            <div class="meta-row"><dt>Urgency exactly right</dt><dd>{{ meta.urgency_exact }}</dd></div>
+            <div class="meta-row"><dt>Macro F1</dt><dd>{{ meta.macro_f1 }}</dd></div>
+          </dl>
+          {% else %}
+          <p class="muted">Model metrics will appear here once <code class="mono">python ml_model/train_model.py</code> has been run.</p>
+          {% endif %}
+        </div>
+
+        <div class="panel" style="border-color:var(--red)">
+          <h3 style="color:var(--red)">The rule that overrides the model</h3>
+          <p>Before the classifier runs at all, the selected symptoms are checked against eight hand-written emergency rules covering heart attack, stroke, internal bleeding, meningitis, severe breathing difficulty, acute abdomen, seizure and kidney failure. If any rule fires, the model is skipped and the user gets an ambulance number instead of a probability. Critical lab values do the same.</p>
+          <p>This ordering is the most important design decision in the project. A model trained on typical presentations should never be the thing standing between someone having a stroke and a phone call. The rules are readable and auditable — you can check them by reading them, which is not true of a forest of trees.</p>
+          <p class="mb0">The same asymmetry governs lab reports: a value read from a photograph may <b>raise</b> urgency and may never lower it. The dangerous misreading is the plausible one — 15,000 platelets read as 150,000 — and an error in the reassuring direction is the one that does harm.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Honest limitations</h3>
+          <ul class="ticks">
+            <li>Bed counts are entered by hand and are demonstration data, not live.</li>
+            <li>The training data is generated from curated profiles, not real patient records — so accuracy figures describe the model, not clinical performance.</li>
+            <li>The checker covers 70 conditions. Anything outside that list cannot be predicted, only mismatched.</li>
+            <li>It never tells you which medicine to take. Dengue and flu are among the pairs it most often confuses, and the correct painkiller advice for them is opposite — so it tells you what to <b>avoid</b> instead, which stays safe even when the guess is wrong.</li>
+            <li>Scheme details are accurate as of the verification date on each page and must be re-checked against official portals.</li>
+          </ul>
+        </div>
+      </div>
+
+      <aside>
+        <div class="panel panel--side">
+          <h3>Built with</h3>
+          <dl style="margin:0">
+            <div class="meta-row"><dt>Backend</dt><dd>Django 5</dd></div>
+            <div class="meta-row"><dt>Database</dt><dd>SQLite</dd></div>
+            <div class="meta-row"><dt>ML</dt><dd>scikit-learn</dd></div>
+            <div class="meta-row"><dt>Frontend</dt><dd>Django templates, CSS</dd></div>
+            <div class="meta-row"><dt>Admin</dt><dd>Django admin</dd></div>
+          </dl>
+        </div>
+
+        <div class="panel panel--side">
+          <h3>Design notes</h3>
+          <p class="small">The visual language comes from painted Primary Health Centre wall posters: flat colour, heavy type, bilingual labels, no gradients. It has to be readable on a cheap phone in daylight.</p>
+          <p class="small mb0">Colour carries meaning and nothing else. Green is the site. Yellow and orange are ration card categories and bed pressure. Red is only ever an emergency.</p>
+        </div>
+
+        <div class="notice">
+          Source data should always be re-verified at <a href="https://www.myscheme.gov.in" rel="noopener">myscheme.gov.in</a> and <a href="https://www.jeevandayee.gov.in" rel="noopener">jeevandayee.gov.in</a>.
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

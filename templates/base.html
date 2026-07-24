@@ -1,0 +1,88 @@
+{% load static humanize %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ SITE_NAME }}{% endblock %} — {{ SITE_NAME }}</title>
+<meta name="description" content="{% block description %}Find the government health schemes you qualify for, hospital bed capacity near you, and how urgently your symptoms need attention.{% endblock %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Latin:wght@400;500;600;700&family=Anek+Devanagari:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+<a href="#main" class="skip">Skip to main content</a>
+
+<header class="masthead">
+  <div class="masthead__bar">
+    <a href="{% url 'core:home' %}" class="brand">
+      <span class="brand__mark" aria-hidden="true">आ</span>
+      <span>
+        <span class="brand__name">Arogya Disha</span>
+        <span class="brand__sub">Health guidance</span>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="{% url 'core:home' %}" {% if request.resolver_match.url_name == 'home' %}class="is-active"{% endif %}>Home</a>
+      <a href="{% url 'schemes:list' %}" {% if request.resolver_match.app_name == 'schemes' %}class="is-active"{% endif %}>Schemes</a>
+      <a href="{% url 'hospitals:list' %}" {% if request.resolver_match.app_name == 'hospitals' %}class="is-active"{% endif %}>Hospitals</a>
+      <a href="{% url 'prediction:start' %}" {% if request.resolver_match.app_name == 'prediction' %}class="is-active"{% endif %}>Symptom checker</a>
+      <a href="{% url 'core:about' %}" {% if request.resolver_match.url_name == 'about' %}class="is-active"{% endif %}>About</a>
+      <a href="tel:{{ EMERGENCY_NUMBER }}" class="nav__sos">☎ {{ EMERGENCY_NUMBER }}</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+{% if messages %}
+<div class="wrap" style="padding-top:16px">
+  {% for m in messages %}
+  <div class="callout {% if m.tags == 'error' %}callout--danger{% elif m.tags == 'warning' %}callout--warn{% else %}callout--info{% endif %}" style="margin:0 0 10px">{{ m }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+{% block content %}{% endblock %}
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__grid">
+      <div>
+        <h4>Arogya Disha</h4>
+        <p style="margin-top:0">A student-built awareness platform helping people find the public healthcare they are already entitled to.</p>
+      </div>
+      <div>
+        <h4>On this site</h4>
+        <ul>
+          <li><a href="{% url 'schemes:list' %}">Government schemes</a></li>
+          <li><a href="{% url 'hospitals:list' %}">Hospitals and beds</a></li>
+          <li><a href="{% url 'prediction:start' %}">Symptom checker</a></li>
+          <li><a href="{% url 'core:about' %}">How this was built</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Free helplines</h4>
+        <ul>
+          <li>Ambulance — <a href="tel:108">108</a></li>
+          <li>Health helpline — <a href="tel:104">104</a></li>
+          <li>Ayushman Bharat — <a href="tel:14555">14555</a></li>
+          <li>Mental health (Tele-MANAS) — <a href="tel:14416">14416</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Verify before you act</h4>
+        <ul>
+          <li><a href="https://pmjay.gov.in" rel="noopener">pmjay.gov.in</a></li>
+          <li><a href="https://www.jeevandayee.gov.in" rel="noopener">jeevandayee.gov.in</a></li>
+          <li><a href="https://www.myscheme.gov.in" rel="noopener">myscheme.gov.in</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot__bottom">
+      <span>Community Engagement Project · Dept. of Computer Science &amp; Engineering</span>
+      <span>Not a medical service. Always consult a registered doctor.</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{% comment %}
+  Reusable bed panel. `h` is a Hospital.
+
+  Shows total bed capacity rather than beds currently free. The colour that
+  used to sit here (open / limited / full) was driven by free_percent, which
+  is no longer displayed - keeping it would show a red or green panel next to
+  a number that gives no visible reason for the colour, so it is dropped in
+  favour of one neutral tone. The per-type breakdown is dropped too: the model
+  only records *available* counts per bed type (general/ICU/oxygen/
+  ventilator), not a total per type, so there is nothing correct to show there
+  once the heading number is capacity rather than availability.
+{% endcomment %}
+{% with r=h.beds %}
+{% if r %}
+<div class="beds beds--total">
+  <div>
+    <div class="beds__n">{{ r.total_beds }}</div>
+    <div class="beds__l">total beds</div>
+  </div>
+  <div class="beds__time">Updated {{ r.last_updated|timesince }} ago{% if r.is_stale %} · may be out of date{% endif %}</div>
+</div>
+{% else %}
+<div class="beds beds--none">
+  <div><div class="beds__n">—</div><div class="beds__l">No bed data yet</div></div>
+  <div class="beds__time">Phone the hospital before travelling</div>
+</div>
+{% endif %}
+{% endwith %}

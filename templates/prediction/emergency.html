@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Seek help now{% endblock %}
+{% block content %}
+<section class="sos"><div class="wrap">
+  <p class="eyebrow" style="color:rgba(255,255,255,.7)">
+    {% if outcome.source == 'lab' %}Critical lab value{% else %}Warning signs detected{% endif %}
+  </p>
+  <h1>{{ outcome.flag.title }}</h1>
+  <p style="font-size:1.15rem;max-width:60ch">{{ outcome.flag.message }}</p>
+  <a class="sos__num" href="tel:{{ outcome.number }}">{{ outcome.number }} <small>Free ambulance<br>24 hours</small></a>
+  <p style="max-width:60ch">Call now, or get someone to take you to the nearest hospital with an emergency department. Do not drive yourself.</p>
+</div></section>
+
+<section class="band"><div class="wrap">
+  <div class="split">
+    <div>
+      <div class="card">
+        <h3>While you wait</h3>
+        <ul class="ticks">
+          <li>Stay with the person. Do not leave them alone.</li>
+          <li>Keep them sitting up if breathing is difficult, or on their side if drowsy.</li>
+          <li>Do not give food, water or any medicine unless a doctor tells you to.</li>
+          <li>Gather any previous reports, prescriptions and the Ayushman or MJPJAY card if you have one.</li>
+          <li>Note down the time the symptoms started — the hospital will ask.</li>
+        </ul>
+      </div>
+
+      {% if outcome.labs.notes %}
+      <div class="card">
+        <h3>The values that triggered this</h3>
+        {% for n in outcome.labs.notes %}
+        <div class="labrow">
+          <div>
+            <div class="labrow__name">{{ n.label }}</div>
+            <div class="labrow__ref">usual: {{ n.normal_text }}</div>
+          </div>
+          <div class="labrow__val is-{{ n.direction }}">{{ n.value|floatformat:"-2" }}</div>
+        </div>
+        {% endfor %}
+        <p class="hint">Take the printed report with you.</p>
+      </div>
+      {% endif %}
+
+      {% if outcome.selected_labels %}
+      <div class="card">
+        <h4>What you reported</h4>
+        <div class="chips" style="margin-top:8px">
+          {% for s in outcome.selected_labels %}<span class="pill pill--warn">{{ s }}</span>{% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <aside class="stack">
+      {% if emergency_hospitals %}
+      <div class="card">
+        <h4>Emergency departments</h4>
+        {% for h in emergency_hospitals %}
+        <div class="alt">
+          <div style="flex:1">
+            <a href="{% url 'hospitals:detail' h.pk %}" style="font-weight:600;text-decoration:none">{{ h.name }}</a>
+            <div class="small muted">{{ h.city }}</div>
+          </div>
+          {% if h.phone %}<a class="btn btn--sm btn--danger" href="tel:{{ h.phone }}">Call</a>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="card">
+        <h4>Other free helplines</h4>
+        <dl style="margin:0">
+          <div class="meta-row"><dt>Ambulance</dt><dd><a href="tel:108">108</a></dd></div>
+          <div class="meta-row"><dt>Health helpline</dt><dd><a href="tel:104">104</a></dd></div>
+          <div class="meta-row"><dt>Ayushman Bharat</dt><dd><a href="tel:14555">14555</a></dd></div>
+          <div class="meta-row"><dt>Mental health</dt><dd><a href="tel:14416">14416</a></dd></div>
+        </dl>
+      </div>
+      <a class="btn btn--ghost btn--wide" href="{% url 'prediction:reset' %}">Start again</a>
+    </aside>
+  </div>
+</div></section>
+{% endblock %}

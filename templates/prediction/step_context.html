@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}A few details{% endblock %}
+{% block content %}
+<section class="band band--tight"><div class="wrap wrap--narrow">
+  {% include "prediction/_stepper.html" %}
+  <p class="eyebrow">Step 2 of 4</p>
+  <h1 style="margin-bottom:6px">A few details<span class="mr">थोडी माहिती</span></h1>
+  <p class="lede">A tick-box list cannot capture how long something has lasted or how old you are — and those change what the same symptoms mean.</p>
+</div></section>
+
+<section class="band" style="padding-top:0"><div class="wrap wrap--narrow">
+  <form method="post">
+    {% csrf_token %}
+    {% for q in questions %}
+    <div class="card">
+      <h3 style="margin-bottom:2px">{{ q.question }}</h3>
+      <p class="qcard__why">{{ q.why }}</p>
+      <div class="opts">
+        {% for o in q.options %}
+        <label class="opt">
+          <input type="{% if q.multi %}checkbox{% else %}radio{% endif %}"
+                 name="{{ q.key }}" value="{{ o.value }}"
+                 {% if o.checked %}checked{% endif %}>
+          <span>{{ o.label }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="card">
+      <div class="card__head">
+        <div>
+          <h3 style="margin-bottom:2px">Do you have a lab report?</h3>
+          <p class="small muted mb0">Optional, but lab values are hard evidence in a way tick-boxes are not.</p>
+        </div>
+        {% if labs %}<span class="badge badge--ok">{{ labs|length }} value{{ labs|length|pluralize }} added</span>{% endif %}
+      </div>
+      {% if labs %}
+      <div style="margin-bottom:12px">
+        {% for r in lab_rows %}
+        <div class="labrow">
+          <div><div class="labrow__name">{{ r.label }}</div></div>
+          <div class="labrow__val mono">{{ r.value|floatformat:"-2" }} <span class="small muted">{{ r.unit }}</span></div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <a class="btn btn--ghost" href="{% url 'prediction:labs' %}">
+        {% if labs %}Change report values{% else %}📄 Add a report — photo or type it in{% endif %}
+      </a>
+      {% if ocr_available %}<p class="hint">You can photograph the report and we will read the numbers for you.</p>
+      {% else %}<p class="hint">Photo reading is not available on this server, so values are typed in.</p>{% endif %}
+    </div>
+
+    <div class="row" style="justify-content:space-between;margin-top:20px">
+      <a class="btn btn--ghost" href="{% url 'prediction:start' %}">← Back</a>
+      <button class="btn" type="submit">Continue →</button>
+    </div>
+  </form>
+</div></section>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Health guidance for Maharashtra{% endblock %}
+{% block content %}
+
+<section class="hero"><div class="wrap">
+  <p class="eyebrow">Maharashtra · Free public healthcare</p>
+  <h1>Most people qualify for free treatment and <em>never find out</em>.</h1>
+  <p class="hero__sub">बहुतेक लोक मोफत उपचारांसाठी पात्र असतात, पण त्यांना ते कधीच कळत नाही.</p>
+  <p class="lede" style="margin-top:16px">Three things this site does: shows which government schemes cover you, how many beds each nearby hospital has, and how urgently your symptoms need a doctor.</p>
+  <div class="row" style="margin-top:24px">
+    <a class="btn" href="{% url 'schemes:list' %}">Check what covers me</a>
+    <a class="btn btn--ghost" href="{% url 'prediction:start' %}">Check my symptoms</a>
+  </div>
+
+  <div class="hero__stats">
+    <div class="stat"><span class="stat__n">₹5L</span><span class="stat__l">Cover per family per year</span></div>
+    <div class="stat"><span class="stat__n">{{ scheme_count }}</span><span class="stat__l">Schemes explained</span></div>
+    <div class="stat"><span class="stat__n">{{ hospital_count }}</span><span class="stat__l">Hospitals listed</span></div>
+    <div class="stat"><span class="stat__n">{{ condition_count }}</span><span class="stat__l">Conditions recognised</span></div>
+  </div>
+</div></section>
+
+<section class="band band--tint"><div class="wrap">
+  <div class="grid grid--3">
+    <a class="scheme" href="{% url 'schemes:list' %}">
+      <div class="card">
+        <p class="eyebrow">01 · Schemes</p>
+        <h3>Find what you qualify for<span class="mr">तुम्ही कशासाठी पात्र आहात</span></h3>
+        <p class="small">Pick your ration card colour and see the schemes that apply, what they pay for, and exactly which documents to carry.</p>
+      </div>
+    </a>
+    <a class="scheme" href="{% url 'hospitals:list' %}">
+      <div class="card">
+        <p class="eyebrow">02 · Hospitals</p>
+        <h3>See where beds are free<span class="mr">कुठे खाटा उपलब्ध आहेत</span></h3>
+        <p class="small">General, ICU and oxygen beds by hospital, with which schemes each one accepts — so you do not travel to a hospital that cannot take you.</p>
+      </div>
+    </a>
+    <a class="scheme" href="{% url 'prediction:start' %}">
+      <div class="card">
+        <p class="eyebrow">03 · Symptoms</p>
+        <h3>Find out how urgent it is<span class="mr">किती तातडीचे आहे</span></h3>
+        <p class="small">Answer a few questions, add a lab report if you have one, and get a clear answer on how soon to see someone — plus what not to take meanwhile.</p>
+      </div>
+    </a>
+  </div>
+</div></section>
+
+<section class="band"><div class="wrap">
+  <div class="split">
+    <div>
+      <p class="eyebrow">Why this exists</p>
+      <h2>The problem is not that the help is missing. It is that nobody can find it.</h2>
+      <p>Ayushman Bharat and MJPJAY each cover ₹5 lakh per family per year. Between them they cover most families in Maharashtra. Yet people still sell land and take loans for treatment that was already paid for.</p>
+      <p>The reasons are ordinary. Nobody knows the scheme exists. Nobody knows which card colour qualifies. Nobody knows which document to carry, so they are turned away and do not come back.</p>
+      <p class="mb0">This site tries to close that gap for one district at a time — plainly, in two languages, on a phone.</p>
+    </div>
+    <aside class="stack">
+      <div class="card">
+        <h4>Free helplines</h4>
+        <dl style="margin:0">
+          <div class="meta-row"><dt>Ambulance</dt><dd><a href="tel:108">108</a></dd></div>
+          <div class="meta-row"><dt>Health helpline</dt><dd><a href="tel:104">104</a></dd></div>
+          <div class="meta-row"><dt>Ayushman Bharat</dt><dd><a href="tel:14555">14555</a></dd></div>
+          <div class="meta-row"><dt>Mental health</dt><dd><a href="tel:14416">14416</a></dd></div>
+          <div class="meta-row"><dt>Women's helpline</dt><dd><a href="tel:181">181</a></dd></div>
+        </dl>
+      </div>
+      <div class="card">
+        <h4>Carry these to any hospital</h4>
+        <ul class="ticks small">
+          <li>Aadhaar card</li>
+          <li>Ration card</li>
+          <li>Ayushman or MJPJAY card</li>
+          <li>Previous prescriptions and reports</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</div></section>
+{% endblock %}
