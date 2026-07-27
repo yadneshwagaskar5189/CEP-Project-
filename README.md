@@ -278,11 +278,10 @@ trade is deliberately lopsided.
 
 ## Lab reports — OCR and manual entry
 
-Both paths exist. **Upload is the primary one**, because photographing a page is
+Both paths exist. Currently, **manual entry** primary one. We would add make **OCR** the primary method later because photographing a page is
 a more widely-held skill than reading it, and the real barrier for a
 low-literacy user was never typing the digits — it was finding the word
-"Haemoglobin" on a cluttered page. OCR removes exactly that barrier. Manual
-entry is the fallback, and it is also the confirmation UI.
+"Haemoglobin" on a cluttered page. OCR removes exactly that barrier.
 
 Three mechanisms make this safe:
 
@@ -299,32 +298,29 @@ Three mechanisms make this safe:
    someone. An error in the alarming direction only sends them to a clinic they
    did not strictly need.
 
-Tested against synthetic Indian lab reports including a deliberately degraded
-photo (rotated, blurred, poor light): every incorrect value was flagged for
-confirmation. **Wrong-and-silent count: zero.**
+Planned to be tested against synthetic Indian lab reports including a deliberately degraded photo (rotated, blurred, poor light).
 
 Report images are read and discarded inside the same request. Nothing is written
 to disk and no file is stored — `FILE_UPLOAD_MAX_MEMORY_SIZE` is raised above the
 accepted upload size specifically so Django does not spill large uploads to a
-temporary file and quietly make that claim untrue.
+temporary file and make that claim untrue.
 
 ### Why there is no "medicines you can take"
 
-This was asked for and deliberately not built. Dengue and Influenza are two of
+This was deliberately not built. Dengue and Influenza are two of
 the conditions this model most often confuses, because they genuinely share
 symptoms — and the correct painkiller advice for them is *opposite*: NSAIDs are
 ordinary for flu and dangerous in dengue because of the bleeding risk. A feature
 confident enough to name a drug is confident enough to do harm on exactly the
-pairs where the model is weakest. Add India's antimicrobial-resistance problem
-and this is indefensible in a viva.
+pairs where the model is weakest.
 
 What is built instead:
 
 - **`avoid`** — drug *safety* warnings, i.e. what **not** to take. Harm reduction
-  stays correct even when the prediction is wrong.
+  stays correct even when the prediction may be wrong.
 - **`tests`** — which tests to ask for by name, which makes a short consultation
   far more useful.
-- Plain-language explanation of report values, in English and Marathi.
+- Plain-language explanation of report values, in English and Marathi(more languages planned for future).
 
 ---
 
@@ -346,11 +342,11 @@ warm end of the ramp belongs entirely to urgency:
 
 | Colour | Means |
 |---|---|
-| Teal | The site itself, and every action |
-| Green | Routine — no rush, and "beds available" |
-| Amber | Prompt — a day or two, and "beds filling up" |
+| Teal | The site itself|
+| Green | Routine — no rush|
+| Amber | Prompt — a day or two|
 | Orange | Urgent — today |
-| Red | Emergency — right now, and "almost full" |
+| Red | Emergency — right now|
 
 Urgency is never colour alone. The four-step scale is a labelled row ("No rush /
 A day or two / Today / Right now") with the current step marked, so it survives
