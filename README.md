@@ -8,9 +8,8 @@ Three features:
 1. **Government scheme directory** — every active central and Maharashtra health
    scheme, with real eligibility rules, the documents to carry, and step-by-step
    application instructions. Filterable by ration card colour.
-2. **Hospital locator with bed availability** — 116 hospitals, 108 of them across
-   all 15 talukas of Pune district, with free bed counts by type (general, ICU,
-   oxygen, ventilator) updated by an administrator through the Django admin.
+2. **Hospital locator** — 116 hospitals, 108 of them across
+   all 15 talukas of Pune district.
 3. **ML symptom checker** — a Random Forest classifier over 189 symptoms and 70
    conditions, wrapped in five layers: a hand-written emergency rule layer that
    runs *before* the model and can override it entirely, an adaptive
@@ -159,8 +158,7 @@ feels real. **Every bed number is invented.**
 | Trust / charitable | 18 |
 | Private | 36 |
 
-Merged with the original seed list, the database holds **116 hospitals** — 108 in
-Pune district and 8 in Nashik retained from the first version.
+Merged with the original seed list, the database holds **106 hospitals**.
 
 **What is real and what is not, stated plainly because an examiner will ask:**
 
