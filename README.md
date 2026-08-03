@@ -124,26 +124,11 @@ July 2026:
 
 ## Feature 2 — Hospital beds
 
-**There is no public real-time API for hospital bed occupancy in India.** This
-project does not pretend otherwise.
+**There is no public real-time API for hospital bed occupancy in India.**
+The website shows the total number of beds in the hospital.
 
-Bed counts live in a `BedAvailability` table that an administrator edits directly
-in the Django admin. That is exactly the interface a hospital data-entry operator
-would use in a real deployment, which makes it an honest simulation rather than a
-fake live feed.
-
-Three things back that up in the interface:
-
-- Every bed count shows how long ago it was updated.
-- Records older than 24 hours are flagged as possibly stale.
-- The list page carries a permanent banner stating the data is a demonstration.
-
-**Updating beds:** go to `/admin/hospitals/bedavailability/`. The list view is
-editable inline, so you can update every hospital in a city on one page and press
-Save once. The `last_updated` timestamp refreshes automatically.
-
-The seeded hospitals use **real hospital names in Nashik and Pune** so the demo
-feels real. **Every bed number is invented.**
+The listed hospitals use **real hospital names in Nashik and Pune**.
+**Every bed number is invented.**
 
 ---
 
