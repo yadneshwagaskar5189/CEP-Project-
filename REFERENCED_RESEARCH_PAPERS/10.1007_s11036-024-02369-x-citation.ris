@@ -1,0 +1,19 @@
+TY  - JOUR
+AU  - Aissaoui Ferhi, Leila
+AU  - Ben Amar, Manel
+AU  - Choubani, Fethi
+AU  - Bouallegue, Ridha
+PY  - 2024
+DA  - 2024/06/01
+TI  - Empowering Medical Diagnosis: A Machine Learning Approach for Symptom-Based Health Checker
+JO  - Mobile Networks and Applications
+SP  - 676
+EP  - 702
+VL  - 29
+IS  - 3
+AB  - AI-powered health checkers and apps for automated medical diagnosis have a lot of promise for a variety of applications. During pandemics, they can lessen the need for in-person patient-doctor interactions and offer vital medical advice in neglected rural areas. In this work, we demonstrate the creation of an expert system driven by machine learning on the web. This technology helps medical practitioners make better diagnostic decisions by supporting them and by offering accurate health forecasts and suggestions to the general population. Due to the lack of authentic medical datasets focusing on symptoms, we collected information from reputable medical sources. This enabled us to prioritize the medical diagnostic process, resulting in the compilation of a comprehensive list of illnesses and associated symptoms. This dataset played a key role in developing our health checker, which consisted of four primary parts: FrontEnd, Authentication module, BackEnd housing the machine learning module, and the Database. We constructed a dataset encompassing up to 415712 synthetic patients, 75 symptoms and risk factors, and 22 cough-related diagnoses. This dataset enabled the training and testing of supervised machine learning models to identify the most effective algorithm for implementation. The accuracy, performance and generalization ability of the utilized machine learning models were assessed using metrics including accuracy, F1-score and cross validation. Our work not only advances machine learning models but also addresses the pressing need for reliable medical datasets. The outcome of our efforts is a robust health checker, set to bring positive changes to diagnostic processes and healthcare accessibility as well as generalization and real-world applicability of our models. This highlights the critical role of dataset quality, especially with our ‘third dataset’ showcasing unparalleled performance across diverse medical scenarios with an accuracy superior to 99% and F1 score superior to 99% also for all the models. Stratified fivefold cross-validation also demonstrates positive results with an average accuracy and an average F1 score exceeding 99% for all models, thereby enhancing the reliability of our model evaluations and boosting confidence in the obtained metrics. In conclusion, our work propels the advancement of machine learning models, specifically addressing the imperative for reliable medical datasets. The result is a symptom-based health checker that demonstrates resilience, positioned to potentially contribute to advancements in diagnostics and improve accessibility to healthcare services.
+SN  - 1572-8153
+UR  - https://doi.org/10.1007/s11036-024-02369-x
+DO  - 10.1007/s11036-024-02369-x
+ID  - Aissaoui Ferhi2024
+ER  - 

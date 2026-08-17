@@ -1,0 +1,17 @@
+TY  - JOUR
+AU  - Wongvibulsin, Shannon
+AU  - Wu, Katherine C.
+AU  - Zeger, Scott L.
+PY  - 2019
+DA  - 2019/12/31
+TI  - Clinical risk prediction with random forests for survival, longitudinal, and multivariate (RF-SLAM) data analysis
+JO  - BMC Medical Research Methodology
+SP  - 1
+VL  - 20
+IS  - 1
+AB  - Clinical research and medical practice can be advanced through the prediction of an individual’s health state, trajectory, and responses to treatments. However, the majority of current clinical risk prediction models are based on regression approaches or machine learning algorithms that are static, rather than dynamic. To benefit from the increasing emergence of large, heterogeneous data sets, such as electronic health records (EHRs), novel tools to support improved clinical decision making through methods for individual-level risk prediction that can handle multiple variables, their interactions, and time-varying values are necessary.
+SN  - 1471-2288
+UR  - https://doi.org/10.1186/s12874-019-0863-0
+DO  - 10.1186/s12874-019-0863-0
+ID  - Wongvibulsin2019
+ER  - 
