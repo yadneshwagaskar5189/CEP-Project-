@@ -1,0 +1,8 @@
+1. Clinical risk prediction with random forests for survival, longitudinal, and multivariate (RF-SLAM) data analysis:
+https://link.springer.com/article/10.1186/s12874-019-0863-0
+
+2. Online data collection strategies used in qualitative research of the health field: a scoping review:
+https://www.scielo.br/j/rgenf/a/ZTDgnm7Y8f8KhKr6jbCKddK/?lang=en#
+
+3. reference for django application:
+https://books.google.co.in/books?hl=en&lr=&id=ZvJaEQAAQBAJ&oi=fnd&pg=PA171&dq=A+Django+web+application+that+helps+people+find+about+public+healthcare&ots=XKQooefZHL&sig=_kLrlB72iRGu1zBWjeDKAghw8-0&redir_esc=y#v=twopage&q&f=true
